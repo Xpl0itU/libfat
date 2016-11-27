@@ -65,8 +65,7 @@ static const devoptab_t dotab_fat = {
 	_FAT_fsync_r,
 	NULL,	/* Device data */
 	NULL,	// chmod_r
-	NULL,	// fchmod_r
-	NULL	// rmdir_r
+	NULL	// fchmod_r
 };
 
 bool fatMount (const char* name, const DISC_INTERFACE* interface, sec_t startSector, uint32_t cacheSize, uint32_t SectorsPerPage) {
@@ -217,7 +216,7 @@ void fatGetVolumeLabel (const char* name, char *label) {
 		return;
 
 	namelen = strlen(name);
-	buf=(char*)_FAT_mem_allocate(sizeof(char)*namelen+2);	
+	buf=(char*)_FAT_mem_allocate(sizeof(char)*namelen+2);
 	strcpy(buf,name);
 
 	if (name[namelen-1] == '/') {
@@ -232,7 +231,7 @@ void fatGetVolumeLabel (const char* name, char *label) {
 
 	devops = (devoptab_t*)GetDeviceOpTab(buf);
 
-	for(i=0;buf[i]!='\0' && buf[i]!=':';i++);  
+	for(i=0;buf[i]!='\0' && buf[i]!=':';i++);
 	if (!devops || strncasecmp(buf,devops->name,i)) {
 		_FAT_mem_free(buf);
 		return;
@@ -243,11 +242,11 @@ void fatGetVolumeLabel (const char* name, char *label) {
 	// Perform a quick check to make sure we're dealing with a libfat controlled device
 	if (devops->open_r != dotab_fat.open_r) {
 		return;
-	}	
+	}
 
 	partition = (PARTITION*)devops->deviceData;
 
-	if(!_FAT_directory_getVolumeLabel(partition, label)) { 
+	if(!_FAT_directory_getVolumeLabel(partition, label)) {
 		strncpy(label,partition->label,11);
 		label[11]='\0';
 	}
