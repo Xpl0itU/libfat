@@ -15,11 +15,11 @@ include $(DEVKITPPC)/wii_rules
 # LIBDIR is where the built library will be placed
 # all directories are relative to this makefile
 #---------------------------------------------------------------------------------
-BUILD		?=	wiiu_release
+BUILD		?=	release
 SOURCES		:=	../source
 INCLUDES	:=	../include
 DATA		:=
-LIBDIR		:=	./lib/wiiu
+LIB		:=	$(TOPDIR)/wiiu/lib
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -29,7 +29,7 @@ CXXFLAGS	=	$(CFLAGS)
 
 ASFLAGS	:=	-g
 
-export WIIUBIN	:=	$(LIBDIR)/libfat.a
+export WIIUBIN	:=	$(LIB)/libfat.a
 
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
@@ -83,7 +83,7 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr wiiu_debug wiiu_release $(LIBDIR)
+	@rm -fr debug release $(LIB) include
 
 all: $(WIIUBIN)
 
@@ -93,7 +93,7 @@ dist-bin:
 	@tar --exclude=.svn --exclude=*CVS* -cvjf $(TOPDIR)/distribute/$(VERSTRING)/libfat-ogc-$(VERSTRING).tar.bz2 include lib
 
 install:
-	@cp $(BUILD)/$(LIBDIR)/libfat.a $(PORTLIBS)/lib
+	@cp lib/libfat.a $(PORTLIBS)/lib
 	@cp $(TOPDIR)/include/fat.h $(TOPDIR)/include/libfatversion.h $(PORTLIBS)/include
 
 #---------------------------------------------------------------------------------
@@ -104,13 +104,13 @@ DEPENDS	:=	$(OFILES:.o=.d)
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
-$(WIIUBIN)	:	$(OFILES) $(LIBDIR)/$(PLATFORM)
+$(WIIUBIN)	:	$(OFILES) $(LIB)
 	@rm -f "$(WIIUBIN)"
 	@$(AR) rcs "$(WIIUBIN)" $(OFILES)
 	@echo built ... $(notdir $@)
 
-$(LIBDIR)/$(PLATFORM):
-	mkdir  -p $(LIBDIR)/$(PLATFORM)
+$(LIB):
+	mkdir $(LIB)
 
 -include $(DEPENDS)
 
