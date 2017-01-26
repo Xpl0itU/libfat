@@ -189,7 +189,12 @@ PARTITION* _FAT_partition_constructor_buf (const DISC_INTERFACE* disc, uint32_t 
 	}
 
 	// Make sure it is a valid MBR or boot sector
-	if ( (sectorBuffer[BPB_bootSig_55] != 0x55) || (sectorBuffer[BPB_bootSig_AA] != 0xAA)) {
+	if ( (sectorBuffer[BPB_bootSig_55] != 0x55) || ((sectorBuffer[BPB_bootSig_AA] != 0xAA)
+#if defined(__gamecube__) || defined (__wii__) || defined (__wiiu__)
+		&& (sectorBuffer[BPB_bootSig_AA] != 0xAB)
+#endif
+		)) {
+
 		return NULL;
 	}
 
