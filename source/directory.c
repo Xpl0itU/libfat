@@ -28,6 +28,7 @@
 */
 
 #include <string.h>
+#include <strings.h>
 #include <ctype.h>
 #include <wchar.h>
 #include <wctype.h>

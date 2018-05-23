@@ -29,6 +29,7 @@
 #include <sys/iosupport.h>
 #include <unistd.h>
 #include <string.h>
+#include <strings.h>
 #include <stdio.h>
 #include <limits.h>
 

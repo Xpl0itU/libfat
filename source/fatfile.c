@@ -44,7 +44,7 @@
 #include "bit_ops.h"
 #include "filetime.h"
 #include "lock.h"
-
+#include <wiiu/os.h>
 bool _FAT_findEntry(const char *path, DIR_ENTRY *dirEntry) {
 	bool r;
 	PARTITION *partition = _FAT_partition_getPartitionFromPath(path);
