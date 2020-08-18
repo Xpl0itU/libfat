@@ -31,7 +31,7 @@
 
 #include "common.h"
 
-#if defined(__wiiu__)
+#if defined(__wiiu__) && !defined(__WUT__)
 
 extern void (* OSInitMutex)(void* mutex);
 extern void (* OSLockMutex)(void* mutex);

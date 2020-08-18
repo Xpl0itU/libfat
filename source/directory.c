@@ -900,6 +900,31 @@ static int _FAT_directory_createAlias (char* alias, const char* lfn) {
 	}
 }
 
+// Calculates a checksum for a filename
+// Algorithm that I lifted wholesale from https://web.archive.org/web/20150610125659/https://usn.pw/blog/gen/2015/06/09/filenames/
+uint16_t calcSFNChecksum(char* name) {
+	int i;
+	uint16_t checksum = 0;
+
+	for (i = 0; name[i]; i++) {
+		checksum = checksum * 0x25 + name[i];
+	}
+
+	int32_t temp = checksum * 314159269;
+	if (temp < 0) temp = -temp;
+	temp -= ((uint64_t)((int64_t)temp * 1152921497) >> 60) * 1000000007;
+	checksum = temp;
+
+	// reverse nibble order
+	checksum =
+		((checksum & 0xf000) >> 12) |
+		((checksum & 0x0f00) >> 4) |
+		((checksum & 0x00f0) << 4) |
+		((checksum & 0x000f) << 12);
+
+	return checksum;
+}
+
 bool _FAT_directory_addEntry (PARTITION* partition, DIR_ENTRY* entry, uint32_t dirCluster) {
 	size_t entrySize;
 	uint8_t lfnEntry[DIR_ENTRY_DATA_SIZE];
@@ -983,6 +1008,19 @@ bool _FAT_directory_addEntry (PARTITION* partition, DIR_ENTRY* entry, uint32_t d
 					// Pad primary component
 					memset (alias + i, '_', j - i);
 				}
+				
+				// Use filename checksum instead of filename for the 8.3 filename entry, which is much more efficient and is what any newer Windows generation does.
+				// See method 4 from https://en.wikipedia.org/wiki/8.3_filename#VFAT_and_Computer-generated_8.3_filenames for more information. The previous method was like method 5.
+				if (aliasLen > MAX_ALIAS_PRI_LENGTH) {
+					char filenameChecksumStr[5];
+					uint16_t filenameChecksum = calcSFNChecksum(entry->filename);
+					sprintf(filenameChecksumStr, "%X", filenameChecksum);
+					alias[2] = filenameChecksumStr[0];
+					alias[3] = filenameChecksumStr[1];
+					alias[4] = filenameChecksumStr[2];
+					alias[5] = filenameChecksumStr[3];
+				}
+				
 				// Generate numeric tail
 				for (i = 1; i <= MAX_NUMERIC_TAIL; i++) {
 					j = i;
@@ -1112,17 +1150,23 @@ void _FAT_directory_entryStat (PARTITION* partition, DIR_ENTRY* entry, struct st
 		0,
 		u8array_to_u16 (entry->entryData, DIR_ENTRY_aDate)
 	);
+#if !defined(__WUT__)
 	st->st_spare1 = 0;
+#endif
 	st->st_mtime = _FAT_filetime_to_time_t (
 		u8array_to_u16 (entry->entryData, DIR_ENTRY_mTime),
 		u8array_to_u16 (entry->entryData, DIR_ENTRY_mDate)
 	);
+#if !defined(__WUT__)
 	st->st_spare2 = 0;
+#endif
 	st->st_ctime = _FAT_filetime_to_time_t (
 		u8array_to_u16 (entry->entryData, DIR_ENTRY_cTime),
 		u8array_to_u16 (entry->entryData, DIR_ENTRY_cDate)
 	);
+#if !defined(__WUT__)
 	st->st_spare3 = 0;
+#endif
 	st->st_blksize = partition->bytesPerSector;				// Prefered file I/O block size
 	st->st_blocks = (st->st_size + partition->bytesPerSector - 1) / partition->bytesPerSector;	// File size in blocks
 	st->st_spare4[0] = 0;

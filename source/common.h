@@ -47,13 +47,15 @@
    typedef uint16_t u16;
    typedef int32_t s32;
    typedef uint32_t u32;
-   
+
    // The mutex needs 44 bytes. See
    // https://github.com/decaf-emu/wut/blob/fe9e0b208cbc0b970e9a6035290cf698fe984242/include/coreinit/mutex.h#L63
+#if   !defined (__WUT__)
    typedef struct mutex_t {
         unsigned char byte[44];
    } mutex_t;
-   
+#endif
+
 #elif defined(__gamecube__) || defined (__wii__)
    #include <gctypes.h>
    #include <ogc/disc_io.h>

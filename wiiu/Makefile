@@ -7,7 +7,7 @@ endif
 
 MACHDEP = -D__wiiu__ -mcpu=750 -meabi -mhard-float
 include $(DEVKITPPC)/base_rules
-export PORTLIBS	:= $(DEVKITPRO)/portlibs/ppc
+export PORTLIBS	:= $(DEVKITPRO)/wut
 
 #---------------------------------------------------------------------------------
 # BUILD is the directory where object files & intermediate files will be placed
@@ -26,7 +26,7 @@ LIB		:=	$(TOPDIR)/wiiu/lib
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-CFLAGS	= -g -Os -Wall -D__wiiu__ $(MACHDEP) $(INCLUDE)
+CFLAGS	= -g -Os -Wall -D__wiiu__ $(MACHDEP) $(INCLUDE) -D__WUT__
 CXXFLAGS	=	$(CFLAGS)
 
 ASFLAGS	:=	-g
