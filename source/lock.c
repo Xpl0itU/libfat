@@ -1,6 +1,15 @@
 #include "common.h"
 
-#if !defined(USE_LWP_LOCK) && (defined(__wiiu__) && defined(__WUT__))
+#if defined(__WUT__)
+void (* fat_OSInitMutex)(void* mutex);
+void (* fat_OSLockMutex)(void* mutex);
+void (* fat_OSUnlockMutex)(void* mutex);
+
+s32 (* fat_OSDynLoad_Acquire)(const char* rpl, u32 *handle);
+s32 (* fat_OSDynLoad_FindExport)(u32 handle, s32 isdata, const char* symbol, void* address);
+#endif
+
+#if !defined(USE_LWP_LOCK) && !(defined(__wiiu__) && defined(__WUT__))
 
 #ifndef mutex_t
 typedef int mutex_t;

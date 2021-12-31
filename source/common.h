@@ -48,12 +48,29 @@
    typedef int32_t s32;
    typedef uint32_t u32;
 
-   // The mutex needs 44 bytes. See
+   // The mutex needs 0x2c bytes. See
    // https://github.com/decaf-emu/wut/blob/fe9e0b208cbc0b970e9a6035290cf698fe984242/include/coreinit/mutex.h#L63
-#if   !defined (__WUT__)
    typedef struct mutex_t {
-        unsigned char byte[44];
+        unsigned char byte[0x2c];
    } mutex_t;
+
+#if defined(__WUT__)
+
+   typedef struct _OsSpecifics {
+      unsigned int addr_OSDynLoad_Acquire;
+      unsigned int addr_OSDynLoad_FindExport;
+      unsigned int addr_OSTitle_main_entry;
+      unsigned int addr_KernSyscallTbl1;
+      unsigned int addr_KernSyscallTbl2;
+      unsigned int addr_KernSyscallTbl3;
+      unsigned int addr_KernSyscallTbl4;
+      unsigned int addr_KernSyscallTbl5;
+   } OsSpecifics;
+   
+   #define MEM_BASE                    (0x00800000)
+   #define OS_SPECIFICS                ((OsSpecifics*)(MEM_BASE + 0x1500))
+   
+   #define EXPORT_FUNC_WRITE(func, val)    *(u32*)(((u32)&func) + 0) = (u32)val
 #endif
 
 #elif defined(__gamecube__) || defined (__wii__)

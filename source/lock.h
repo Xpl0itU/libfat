@@ -31,7 +31,47 @@
 
 #include "common.h"
 
-#if defined(__wiiu__) && !defined(__WUT__)
+#if defined(__wiiu__)
+#if defined(__WUT__)
+extern void (* fat_OSInitMutex)(void* mutex);
+extern void (* fat_OSLockMutex)(void* mutex);
+extern void (* fat_OSUnlockMutex)(void* mutex);
+
+extern s32 (* fat_OSDynLoad_Acquire)(const char* rpl, u32 *handle);
+extern s32 (* fat_OSDynLoad_FindExport)(u32 handle, s32 isdata, const char* symbol, void* address);
+
+static inline void _FAT_lock_init(mutex_t *mutex)
+{
+    EXPORT_FUNC_WRITE(fat_OSDynLoad_Acquire, (s32 (*)(const char*, unsigned *))OS_SPECIFICS->addr_OSDynLoad_Acquire);
+    EXPORT_FUNC_WRITE(fat_OSDynLoad_FindExport, (s32 (*)(u32, s32, const char *, void *))OS_SPECIFICS->addr_OSDynLoad_FindExport);
+
+	uint32_t coreinit_handle;
+    fat_OSDynLoad_Acquire("coreinit.rpl", &coreinit_handle);
+
+	fat_OSDynLoad_FindExport(coreinit_handle, 0, "OSInitMutex", &fat_OSInitMutex);
+	fat_OSDynLoad_FindExport(coreinit_handle, 0, "OSLockMutex", &fat_OSLockMutex);
+	fat_OSDynLoad_FindExport(coreinit_handle, 0, "OSUnlockMutex", &fat_OSUnlockMutex);
+
+	fat_OSInitMutex(mutex);
+}
+
+static inline void _FAT_lock_deinit(mutex_t *mutex)
+{
+	(void)mutex;
+	return;
+}
+
+static inline void _FAT_lock(mutex_t *mutex)
+{
+	fat_OSLockMutex(mutex);
+}
+
+static inline void _FAT_unlock(mutex_t *mutex)
+{
+	fat_OSUnlockMutex(mutex);
+}
+
+#elif defined(__wiiu__)
 
 extern void (* OSInitMutex)(void* mutex);
 extern void (* OSLockMutex)(void* mutex);
@@ -58,6 +98,7 @@ static inline void _FAT_unlock(mutex_t *mutex)
 	OSUnlockMutex(mutex);
 }
 
+#endif
 #elif defined(USE_LWP_LOCK)
 
 static inline void _FAT_lock_init(mutex_t *mutex)
