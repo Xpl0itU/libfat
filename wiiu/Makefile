@@ -7,7 +7,7 @@ endif
 
 MACHDEP = -D__wiiu__ -mcpu=750 -meabi -mhard-float
 include $(DEVKITPPC)/base_rules
-export PORTLIBS	:= $(DEVKITPRO)/wut
+export PORTLIBS	:= $(DEVKITPRO)/wut/usr
 
 #---------------------------------------------------------------------------------
 # BUILD is the directory where object files & intermediate files will be placed
