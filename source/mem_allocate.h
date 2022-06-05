@@ -38,8 +38,10 @@ static inline void* _FAT_mem_allocate (size_t size) {
 }
 
 static inline void* _FAT_mem_align (size_t size) {
-#if defined(__wii__) || defined(__wiiu__)
+#if defined(__wii__)
 	return memalign (32, size);
+#elif defined(__wiiu__)
+	return memalign (0x40, size);
 #else
 	return malloc (size);
 #endif
